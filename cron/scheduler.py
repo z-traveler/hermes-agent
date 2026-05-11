@@ -874,6 +874,7 @@ def _build_job_prompt(job: dict, prerun_script: Optional[tuple] = None) -> str:
         "Never combine [SILENT] with content — either report your "
         "findings normally, or say [SILENT] and nothing more.]\n\n"
     )
+    user_prompt = prompt  # preserve original before cron_hint prefix
     prompt = cron_hint + prompt
     if skills is None:
         legacy = job.get("skill")
@@ -922,8 +923,8 @@ def _build_job_prompt(job: dict, prerun_script: Optional[tuple] = None) -> str:
         )
         parts.insert(0, notice)
 
-    if prompt:
-        parts.extend(["", f"The user has provided the following instruction alongside the skill invocation: {prompt}"])
+    if user_prompt:
+        parts.extend(["", f"The user has provided the following instruction alongside the skill invocation: {user_prompt}"])
     return _scan_assembled_cron_prompt("\n".join(parts), job)
 
 

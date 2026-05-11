@@ -2141,6 +2141,10 @@ def _to_async_client(sync_client, model: str, is_vision: bool = False):
         )
     elif base_url_host_matches(sync_base_url, "api.kimi.com"):
         async_kwargs["default_headers"] = {"User-Agent": "claude-code/0.1.0"}
+    else:
+        # Override SDK default UA (AsyncOpenAI/Python x.y.z) to avoid
+        # being blocked by reverse proxies that filter on User-Agent.
+        async_kwargs["default_headers"] = {"User-Agent": "Mozilla/5.0"}
     return AsyncOpenAI(**async_kwargs), model
 
 
@@ -2368,6 +2372,10 @@ def resolve_provider_client(
                 extra["default_headers"] = copilot_request_headers(
                     is_agent_turn=True, is_vision=is_vision
                 )
+            else:
+                # Override SDK default UA (AsyncOpenAI/Python x.y.z) to avoid
+                # being blocked by reverse proxies that filter on User-Agent.
+                extra["default_headers"] = {"User-Agent": "Mozilla/5.0"}
             client = OpenAI(api_key=custom_key, base_url=_clean_base, **extra)
             client = _wrap_if_needed(client, final_model, custom_base, custom_key)
             return (_to_async_client(client, final_model, is_vision=is_vision) if async_mode
